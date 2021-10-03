@@ -4,7 +4,7 @@ from snake import Snake
 import pygame 
 
 class Board:
-    def __init__(self,rows,cols,size,TICK_SPEED):
+    def __init__(self,rows,cols,size,TICK_SPEED, x, y):
         self.board = np.zeros((rows,cols), dtype=int)
         self.grid_size = size
         self.player_pos = None
@@ -12,6 +12,8 @@ class Board:
         self.apple_control = AppleControl(self.board)
         self.score = 0
         self.TICK_SPEED = TICK_SPEED
+        self.x = x
+        self.y = y
         
     def nrows(self):
         return self.board.shape[0]
@@ -32,8 +34,8 @@ class Board:
         self.board[x,y] = 1
         
     def draw(self, window):
-        self.player.draw(window, self.grid_size)
-        self.apple_control.draw(window, self.grid_size)
+        self.player.draw(window, self.grid_size, self.x, self.y)
+        self.apple_control.draw(window, self.grid_size, self.x, self.y)
         
     def is_player_alive(self):
         return self.player.alive
@@ -56,12 +58,13 @@ class Board:
             self.board[tuple(piece)] = 1
         # print(self.board)
         # print(self.score, self.player.speed)
+        print(self.player.body)
         
         self.set_speed_by_score()
     
     def is_outside(self,pos):
         (x,y) = pos
-        return x < 0 or x >= self.ncols() or y < 0 or y >= self.nrows()
+        return x < 0 or x >= self.nrows() or y < 0 or y >= self.ncols()
     
     def get_available_grid(self):
         free = []

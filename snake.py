@@ -31,9 +31,9 @@ class Snake:
     def get_head_pos(self,i): # i is 0 or 1
         return self.body[0][i]
                      
-    def draw(self, window, grid_size):
+    def draw(self, window, grid_size, x, y):
         for piece in self.body:
-            pygame.draw.rect(window, "white", (piece[0]*grid_size,piece[1]*grid_size,grid_size,grid_size))        
+            pygame.draw.rect(window, "white", (x+piece[0]*grid_size, y+piece[1]*grid_size,grid_size,grid_size))        
     
     def update_direction(self, keys):
         if keys[pygame.K_LEFT] and self.direction[0] == 0: #and self.direction == self.UP or self.direction == self.DOWN:
