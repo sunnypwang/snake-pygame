@@ -4,13 +4,14 @@ from snake import Snake
 import pygame 
 
 class Board:
-    def __init__(self,rows,cols,size):
+    def __init__(self,rows,cols,size,TICK_SPEED):
         self.board = np.zeros((rows,cols), dtype=int)
         self.grid_size = size
         self.player_pos = None
-        self.player = Snake(self, rows/2, cols/2)
+        self.player = Snake(self, rows/2, cols/2, TICK_SPEED)
         self.apple_control = AppleControl(self.board)
         self.score = 0
+        self.TICK_SPEED = TICK_SPEED
         
     def nrows(self):
         return self.board.shape[0]
@@ -38,9 +39,6 @@ class Board:
         return self.player.alive
     
     def update_board(self,keys):
-        if not self.is_player_alive():
-            return False
-        
         self.board.fill(0)
         
         apple_pos = self.apple_control.locate_apple()
@@ -48,18 +46,18 @@ class Board:
             free = self.get_available_grid()
             apple_pos = self.apple_control.spawn_apple(free)
         self.board[apple_pos] = 2
-            
+        
         self.player.update_direction(keys)
-        self.player.move()
+        self.player.update()
         self.check_eat()
         
         for piece in self.player.body:
             # print(piece)
             self.board[tuple(piece)] = 1
         # print(self.board)
-        print(self.score)
+        # print(self.score, self.player.speed)
         
-        return True
+        self.set_speed_by_score()
     
     def is_outside(self,pos):
         (x,y) = pos
@@ -77,3 +75,8 @@ class Board:
         if tuple(self.player.body[0]) == tuple(self.apple_control.pos):
             self.apple_control.destroy_apple()
             self.score += 1
+            self.player.grow()
+            
+    def set_speed_by_score(self):
+        spd = self.score // 5 + 1
+        self.player.set_speed(spd)

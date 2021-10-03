@@ -7,10 +7,11 @@ class AppleControl:
         self.pos = None
 
     def spawn_apple(self,free):
-        idx = random.randint(0, len(free))
-        pos = free[idx]
-        self.pos = pos
-        return pos
+        if free:
+            idx = random.randint(0, len(free)-1)
+            pos = free[idx]
+            self.pos = pos
+            return pos
         
     def locate_apple(self):
         return self.pos

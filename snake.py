@@ -3,7 +3,7 @@ import numpy as np
 
 
 class Snake:
-    def __init__(self,board,x,y):
+    def __init__(self,board,x,y,TICK_SPEED):
         self.board = board
         self.body = [np.array((x-i,y), dtype=int) for i in range(3)]
         self.RIGHT = np.array((1,0))
@@ -12,6 +12,12 @@ class Snake:
         self.UP = np.array((0,-1))
         self.direction = self.RIGHT
         self.alive = True
+        self.speed = 1
+        self.counter = 0
+        self.counter_max = TICK_SPEED - 20
+        self.TICK_SPEED = TICK_SPEED
+        self.MAX_SPEED = 10
+        self.grow_flag = False
         
     def get_x(self):
         return self.body[0][0]
@@ -24,18 +30,6 @@ class Snake:
     
     def get_head_pos(self,i): # i is 0 or 1
         return self.body[0][i]
-    
-    # def moveX(self, i):
-    #     self.body.insert(0,(self.get_head_pos(0)+i,self.get_head_pos(1)))
-    #     self.body.pop()
-        
-    # def moveY(self, i):
-    #     self.body.insert(0,(self.get_head_pos(0),self.get_head_pos(1) + i))
-    #     self.body.pop()
-        
-    # def move_tails(self):
-    #     self.tails.insert(0,(self.head_x,self.head_y))
-    #     self.tails.pop()
                      
     def draw(self, window, grid_size):
         for piece in self.body:
@@ -50,32 +44,34 @@ class Snake:
             self.direction = self.UP
         elif keys[pygame.K_DOWN] and self.direction[1] == 0:
             self.direction = self.DOWN
-                
+               
     def move(self):
-        # if self.direction == self.RIGHT:
-        #     self.moveX(1)
-        # elif self.direction == self.DOWN:
-        #     self.moveY(1)
-        # elif self.direction == self.LEFT:
-        #     self.moveX(-1)         
-        # elif self.direction == self.UP:
-        #     self.moveY(-1)
         next = self.body[0] + self.direction
         if self.board.is_outside(next):
             self.alive = False
         else:
             self.body.insert(0,next)
-            self.body.pop()
-            
-    # def set_direction(self,dir):
-    #     if self.direction * -1 == dir: # if dir is opposite of current, ignore (cannot 180 degree turn)
-    #         return
-    #     self.direction = dir
-    #     print(self.direction)
+            if self.grow_flag: # if grow flag is triggered do not move tail
+                self.grow_flag = False
+            else:
+                self.body.pop()
+    
+    def update(self):
+        self.counter = (self.counter + 1) % (self.TICK_SPEED - 20 - self.speed)
+        if self.counter > 0: 
+            return
         
-    # def turn_left(self):
-    #     self.direction = (self.direction - 1) % 4
-    
-    # def turn_right(self):
-    #     self.direction = (self.direction + 1) % 4
-    
+        self.move()
+        
+    def increase_speed(self):
+        if self.counter_max <= 1:
+            return
+        self.counter_max -= 1
+        
+    def set_speed(self, spd):
+        self.speed = min(self.MAX_SPEED,spd)
+        
+    def grow(self):
+        print('grow')
+        self.grow_flag = True
+        
